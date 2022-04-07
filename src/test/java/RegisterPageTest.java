@@ -1,8 +1,6 @@
-import com.Base;
 import com.UserOperations;
 import com.BaseConfig;
 import com.model.Tokens;
-import com.model.UserRegisterResponse;
 import io.qameta.allure.Step;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.hamcrest.MatcherAssert;
@@ -13,7 +11,6 @@ import pageobject.MainPage;
 import org.junit.Before;
 
 import static com.BaseConfig.START_MAXIMIZED;
-import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
 import io.qameta.allure.Description;
 import io.qameta.allure.junit4.DisplayName;
@@ -87,9 +84,9 @@ public class RegisterPageTest {
             loginPage.clickLoginButton();
         }
 
-        MatcherAssert.assertThat(mainPage.checkCreateOrderButton(), notNullValue());
+        userOperations.getUserAccessToken(user, "https://stellarburgers.nomoreparties.site/api/auth/login");
 
-        getUserAccessToken();
+        MatcherAssert.assertThat(mainPage.checkCreateOrderButton(), notNullValue());
 
     }
 
@@ -111,23 +108,6 @@ public class RegisterPageTest {
         registerPage.clickRegisterButton();
 
         MatcherAssert.assertThat(registerPage.isErrorMessage(), equalTo(true));
-    }
-
-    @Step("Получение AccessToken для удаления пользователя")
-    private void getUserAccessToken() {
-
-        UserRegisterResponse response = given()
-                .spec(Base.getBaseSpec())
-                .and()
-                .body(user)
-                .when()
-                .post("https://stellarburgers.nomoreparties.site/api/auth/login")
-                .body()
-                .as(UserRegisterResponse.class);
-
-        Tokens.setAccessToken(response.getAccessToken().substring(7));
-        Tokens.setRefreshToken(response.getRefreshToken());
-
     }
 
 }
